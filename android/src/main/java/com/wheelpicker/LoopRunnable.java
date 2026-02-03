@@ -21,7 +21,6 @@ final class LoopRunnable implements Runnable {
         
         int selectedItem = LoopView.getSelectedItem(loopView);
         if (selectedItem >= 0 && selectedItem < loopView.arrayList.size()) {
-            loopView.arrayList.get(selectedItem);
             loopView.loopListener.onItemSelect(loopView, selectedItem);
         }
     }

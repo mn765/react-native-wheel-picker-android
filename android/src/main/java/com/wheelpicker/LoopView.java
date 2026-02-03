@@ -427,15 +427,7 @@ public class LoopView extends View {
         // Cleanup executor to prevent memory leaks
         cancelFuture();
         if (mExecutor != null && !mExecutor.isShutdown()) {
-            mExecutor.shutdown();
-            try {
-                if (!mExecutor.awaitTermination(100, TimeUnit.MILLISECONDS)) {
-                    mExecutor.shutdownNow();
-                }
-            } catch (InterruptedException e) {
-                mExecutor.shutdownNow();
-                Thread.currentThread().interrupt();
-            }
+            mExecutor.shutdownNow();
         }
         // Clear handler messages to prevent memory leaks
         if (handler != null) {
