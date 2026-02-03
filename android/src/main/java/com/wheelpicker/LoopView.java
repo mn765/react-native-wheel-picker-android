@@ -164,7 +164,7 @@ public class LoopView extends View {
     }
 
     public void cancelFuture() {
-        if (mFuture!=null&&!mFuture.isCancelled()) {
+        if (mFuture != null && !mFuture.isCancelled()) {
             mFuture.cancel(true);
             mFuture = null;
         }
