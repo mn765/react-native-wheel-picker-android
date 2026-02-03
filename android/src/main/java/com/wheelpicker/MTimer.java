@@ -1,5 +1,6 @@
 package com.wheelpicker;
 
+import java.lang.ref.WeakReference;
 import java.util.TimerTask;
 
 final class MTimer extends TimerTask {
@@ -7,11 +8,11 @@ final class MTimer extends TimerTask {
     int realTotalOffset;
     int realOffset;
     int offset;
-    final LoopView loopView;
+    private final WeakReference<LoopView> loopViewRef;
 
     MTimer(LoopView loopview, int offset) {
         super();
-        this.loopView = loopview;
+        this.loopViewRef = new WeakReference<>(loopview);
         this.offset = offset;
         realTotalOffset = Integer.MAX_VALUE;
         realOffset = 0;
@@ -19,8 +20,16 @@ final class MTimer extends TimerTask {
 
     @Override
     public final void run() {
+        LoopView loopView = loopViewRef.get();
+        if (loopView == null) {
+            return;
+        }
+        
         if (realTotalOffset == Integer.MAX_VALUE) {
             float itemHeight = loopView.lineSpacingMultiplier * loopView.maxTextHeight;
+            if (itemHeight == 0) {
+                return; // Prevent divide-by-zero
+            }
             offset = (int)((offset + itemHeight) % itemHeight);
             if ((float) offset > itemHeight / 2.0F) {
                 realTotalOffset = (int) (itemHeight - (float) offset);
@@ -39,11 +48,15 @@ final class MTimer extends TimerTask {
         }
         if (Math.abs(realTotalOffset) <= 0) {
             loopView.cancelFuture();
-            loopView.handler.sendEmptyMessage(3000);
+            if (loopView.handler != null) {
+                loopView.handler.sendEmptyMessage(3000);
+            }
             return;
         } else {
             loopView.totalScrollY = loopView.totalScrollY + realOffset;
-            loopView.handler.sendEmptyMessage(1000);
+            if (loopView.handler != null) {
+                loopView.handler.sendEmptyMessage(1000);
+            }
             realTotalOffset = realTotalOffset - realOffset;
             return;
         }

@@ -6,24 +6,32 @@ package com.wheelpicker;
  */
 import android.view.MotionEvent;
 
+import java.lang.ref.WeakReference;
+
 final class LoopViewGestureListener extends android.view.GestureDetector.SimpleOnGestureListener {
 
-    final LoopView loopView;
+    private final WeakReference<LoopView> loopViewRef;
 
     LoopViewGestureListener(LoopView loopview) {
         super();
-        loopView = loopview;
+        loopViewRef = new WeakReference<>(loopview);
     }
 
     @Override
     public final boolean onDown(MotionEvent motionevent) {
-        loopView.cancelFuture();
+        LoopView loopView = loopViewRef.get();
+        if (loopView != null) {
+            loopView.cancelFuture();
+        }
         return true;
     }
 
     @Override
     public final boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-        loopView.smoothScroll(velocityY);
+        LoopView loopView = loopViewRef.get();
+        if (loopView != null) {
+            loopView.smoothScroll(velocityY);
+        }
         return true;
     }
 }

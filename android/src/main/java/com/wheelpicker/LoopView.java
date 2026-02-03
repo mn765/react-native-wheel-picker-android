@@ -32,7 +32,7 @@ public class LoopView extends View {
     Paint paintA;  //paint that draw top and bottom text
     Paint paintB;  // paint that draw center text
     Paint paintC;  // paint that draw line besides center text
-    ArrayList arrayList;
+    ArrayList<String> arrayList;
     int textSize;
     int maxTextWidth;
     int maxTextHeight;
@@ -94,9 +94,7 @@ public class LoopView extends View {
         paintB.setTextSize(textSize);
         paintC = new Paint();
         paintA.setTextSize(textSize);
-        if (android.os.Build.VERSION.SDK_INT >= 11) {
-            setLayerType(LAYER_TYPE_SOFTWARE, null);
-        }
+        setLayerType(LAYER_TYPE_SOFTWARE, null);
         gestureDetector = new GestureDetector(context, simpleOnGestureListener);
         gestureDetector.setIsLongpressEnabled(false);
     }
@@ -135,9 +133,12 @@ public class LoopView extends View {
     }
 
     private void measureTextWidthHeight() {
+        if (arrayList == null) {
+            return;
+        }
         Rect rect = new Rect();
         for (int i = 0; i < arrayList.size(); i++) {
-            String s1 = (String) arrayList.get(i);
+            String s1 = arrayList.get(i);
             paintB.getTextBounds(s1, 0, s1.length(), rect);
             int textWidth = rect.width();
             if (textWidth > maxTextWidth) {
@@ -154,6 +155,9 @@ public class LoopView extends View {
 
 
     private void smoothScroll() {
+        if (lineSpacingMultiplier == 0 || maxTextHeight == 0) {
+            return; // Prevent divide-by-zero
+        }
         int offset = (int) (totalScrollY % (lineSpacingMultiplier * maxTextHeight));
         cancelFuture();
         mFuture = mExecutor.scheduleWithFixedDelay(new MTimer(this, offset), 0, 10, TimeUnit.MILLISECONDS);
@@ -185,11 +189,11 @@ public class LoopView extends View {
 
     @Override
     protected void onDraw(Canvas canvas) {
-        String as[];
-        if (arrayList == null) {
+        if (arrayList == null || arrayList.size() == 0) {
             super.onDraw(canvas);
             return;
         }
+        String as[];
         as = new String[itemCount];
         change = (int) (totalScrollY / (lineSpacingMultiplier * maxTextHeight));
         preCurrentIndex = initPosition + change % arrayList.size();
@@ -222,13 +226,13 @@ public class LoopView extends View {
                 if (l1 > arrayList.size() - 1) {
                     l1 = l1 - arrayList.size();
                 }
-                as[k1] = (String) arrayList.get(l1);
+                as[k1] = arrayList.get(l1);
             } else if (l1 < 0) {
                 as[k1] = "";
             } else if (l1 > arrayList.size() - 1) {
                 as[k1] = "";
             } else {
-                as[k1] = (String) arrayList.get(l1);
+                as[k1] = arrayList.get(l1);
             }
             k1++;
         }
@@ -334,7 +338,7 @@ public class LoopView extends View {
                 return true;
         }
 
-        if (!isLoop) {
+        if (!isLoop && arrayList != null) {
             int circleLength = (int) ((float) (arrayList.size() - 1 - initPosition) * (lineSpacingMultiplier * maxTextHeight));
             if (totalScrollY >= circleLength) {
                 totalScrollY = circleLength;
@@ -367,7 +371,7 @@ public class LoopView extends View {
         loopListener = LoopListener;
     }
 
-    public final void setArrayList(ArrayList arraylist) {
+    public final void setArrayList(ArrayList<String> arraylist) {
         this.arrayList = arraylist;
         initData();
         invalidate();
@@ -415,6 +419,28 @@ public class LoopView extends View {
         totalScrollY = (int) ((float) (position - initPosition) * (lineSpacingMultiplier * maxTextHeight));
         invalidate();
         smoothScroll();
+    }
+
+    @Override
+    protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+        // Cleanup executor to prevent memory leaks
+        cancelFuture();
+        if (mExecutor != null && !mExecutor.isShutdown()) {
+            mExecutor.shutdown();
+            try {
+                if (!mExecutor.awaitTermination(100, TimeUnit.MILLISECONDS)) {
+                    mExecutor.shutdownNow();
+                }
+            } catch (InterruptedException e) {
+                mExecutor.shutdownNow();
+                Thread.currentThread().interrupt();
+            }
+        }
+        // Clear handler messages to prevent memory leaks
+        if (handler != null) {
+            handler.removeCallbacksAndMessages(null);
+        }
     }
 
 }

@@ -1,19 +1,28 @@
 package com.wheelpicker;
+
+import java.lang.ref.WeakReference;
+
 final class LoopRunnable implements Runnable {
 
-    final LoopView loopView;
+    private final WeakReference<LoopView> loopViewRef;
 
     LoopRunnable(LoopView loopview) {
         super();
-        loopView = loopview;
+        loopViewRef = new WeakReference<>(loopview);
 
     }
 
     @Override
     public final void run() {
-        LoopListener listener = loopView.loopListener;
+        LoopView loopView = loopViewRef.get();
+        if (loopView == null || loopView.loopListener == null || loopView.arrayList == null) {
+            return;
+        }
+        
         int selectedItem = LoopView.getSelectedItem(loopView);
-        loopView.arrayList.get(selectedItem);
-        listener.onItemSelect(loopView, selectedItem);
+        if (selectedItem >= 0 && selectedItem < loopView.arrayList.size()) {
+            loopView.arrayList.get(selectedItem);
+            loopView.loopListener.onItemSelect(loopView, selectedItem);
+        }
     }
 }
