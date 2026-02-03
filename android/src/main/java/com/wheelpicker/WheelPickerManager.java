@@ -38,39 +38,39 @@ public class WheelPickerManager extends SimpleViewManager<LoopView> implements L
 
     @ReactProp(name = "data")
     public void setData(LoopView wheelPicker, ReadableArray data) {
-        if (wheelPicker!=null){
-            List<String> emptyList = new ArrayList<>();
+        if (wheelPicker != null) {
+            ArrayList<String> stringList = new ArrayList<>();
             try {
-                List<Integer> dataInt = new ArrayList<>();
-                for (int i = 0; i <data.size() ; i++) {
-                    dataInt.add(data.getInt(i));
+                // Try to read as integers first
+                for (int i = 0; i < data.size(); i++) {
+                    stringList.add(String.valueOf(data.getInt(i)));
                 }
-                wheelPicker.setArrayList((ArrayList) dataInt);
-            } catch (Exception e){
+            } catch (Exception e) {
+                // If integers fail, try strings
+                stringList.clear();
                 try {
-                    List<String> dataString = new ArrayList<>();
-                    for (int i = 0; i <data.size() ; i++) {
-                        dataString.add(data.getString(i));
+                    for (int i = 0; i < data.size(); i++) {
+                        stringList.add(data.getString(i));
                     }
-                    wheelPicker.setArrayList((ArrayList) dataString);
-                } catch (Exception ex){
+                } catch (Exception ex) {
                     ex.printStackTrace();
-                    wheelPicker.setArrayList((ArrayList) emptyList);
+                    stringList.clear();
                 }
             }
+            wheelPicker.setArrayList(stringList);
         }
     }
 
     @ReactProp(name = "isCyclic")
     public void setCyclic(LoopView wheelPicker, Boolean isCyclic) {
-        if (wheelPicker!=null){
+        if (wheelPicker != null) {
             wheelPicker.setLoop(isCyclic);
         }
     }
 
     @ReactProp(name = "selectedItemTextColor")
     public void setSelectedItemTextColor(LoopView wheelPicker, String selectedItemTextColor) {
-        if (wheelPicker!=null){
+        if (wheelPicker != null) {
             wheelPicker.setSelectedItemTextColor(convertColor(selectedItemTextColor));
         }
     }
@@ -78,14 +78,14 @@ public class WheelPickerManager extends SimpleViewManager<LoopView> implements L
 
     @ReactProp(name = "selectedItemTextSize")
     public void setSelectedItemTextSize(LoopView wheelPicker, int itemTextSize) {
-        if (wheelPicker!=null){
+        if (wheelPicker != null) {
             wheelPicker.setSelectedItemTextSize(itemTextSize);
         }
     }
 
     @ReactProp(name = "selectedItemTextFontFamily")
     public void setSelectedItemFont(LoopView wheelPicker, String itemTextFontFamily) {
-        if (wheelPicker!=null){
+        if (wheelPicker != null) {
             Typeface typeface = ReactFontManager.getInstance().getTypeface(itemTextFontFamily, Typeface.NORMAL, wheelPicker.getContext().getAssets());
             wheelPicker.setSelectedItemFont(typeface);
         }
@@ -93,42 +93,42 @@ public class WheelPickerManager extends SimpleViewManager<LoopView> implements L
 
     @ReactProp(name = "indicatorWidth")
     public void setIndicatorWidth(LoopView wheelPicker, int indicatorSize) {
-        if (wheelPicker!=null){
+        if (wheelPicker != null) {
             wheelPicker.setIndicatorWidth(indicatorSize);
         }
     }
 
     @ReactProp(name = "hideIndicator")
     public void setIndicator(LoopView wheelPicker, Boolean renderIndicator) {
-        if (wheelPicker!=null){
+        if (wheelPicker != null) {
             wheelPicker.hideIndicator();
         }
     }
 
     @ReactProp(name = "indicatorColor")
     public void setIndicatorColor(LoopView wheelPicker, String indicatorColor) {
-        if (wheelPicker!=null){
+        if (wheelPicker != null) {
             wheelPicker.setIndicatorColor(convertColor(indicatorColor));
         }
     }
 
     @ReactProp(name = "itemTextColor")
     public void setItemTextColor(LoopView wheelPicker, String itemTextColor) {
-        if (wheelPicker!=null){
+        if (wheelPicker != null) {
             wheelPicker.setItemTextColor(convertColor(itemTextColor));
         }
     }
 
     @ReactProp(name = "itemTextSize")
     public void setItemTextSize(LoopView wheelPicker, int itemTextSize) {
-        if (wheelPicker!=null){
+        if (wheelPicker != null) {
             wheelPicker.setItemTextSize(itemTextSize);
         }
     }
 
     @ReactProp(name = "itemTextFontFamily")
     public void setItemFont(LoopView wheelPicker, String itemTextFontFamily) {
-      if (wheelPicker!=null){
+      if (wheelPicker != null) {
         Typeface typeface = ReactFontManager.getInstance().getTypeface(itemTextFontFamily, Typeface.NORMAL, wheelPicker.getContext().getAssets());
         wheelPicker.setItemFont(typeface);
       }
@@ -136,14 +136,14 @@ public class WheelPickerManager extends SimpleViewManager<LoopView> implements L
 
     @ReactProp(name = "initPosition")
     public void setInitialPosition(LoopView wheelPicker, int selectedItemPosition) {
-        if (wheelPicker!=null){
+        if (wheelPicker != null) {
             wheelPicker.setInitPosition(selectedItemPosition);
         }
     }
 
     @ReactProp(name = "backgroundColor")
     public void setBackgroundColor(LoopView wheelPicker, String backgroundColor) {
-        if (wheelPicker!=null){
+        if (wheelPicker != null) {
             wheelPicker.setBackgroundColor(convertColor(backgroundColor));
         }
     }
@@ -151,7 +151,7 @@ public class WheelPickerManager extends SimpleViewManager<LoopView> implements L
 
     @ReactProp(name = "selectedItem")
     public void setSelectedItem(LoopView wheelPicker, int pos) {
-        if (wheelPicker!=null){
+        if (wheelPicker != null) {
             wheelPicker.setSelectedItem(pos);
         }
     }

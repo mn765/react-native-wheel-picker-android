@@ -1,31 +1,41 @@
 package com.wheelpicker;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.Message;
 
-// Referenced classes of package com.qingchifan.view:
+import java.lang.ref.WeakReference;
+
+// Referenced classes of package com.wheelpicker:
 //            LoopView
 
 final class MessageHandler extends Handler {
 
-    final LoopView loopview;
+    private final WeakReference<LoopView> loopViewRef;
 
     MessageHandler(LoopView loopview) {
-        super();
-        this.loopview = loopview;
+        super(Looper.getMainLooper());
+        this.loopViewRef = new WeakReference<>(loopview);
     }
 
     @Override
     public final void handleMessage(Message paramMessage) {
-        if (paramMessage.what == 1000)
-            this.loopview.invalidate();
-        while (true) {
-            if (paramMessage.what == 2000)
-                LoopView.smoothScroll(loopview);
-            else if (paramMessage.what == 3000)
-                this.loopview.itemSelected();
-            super.handleMessage(paramMessage);
+        LoopView loopView = loopViewRef.get();
+        if (loopView == null) {
             return;
         }
+        
+        switch (paramMessage.what) {
+            case 1000:
+                loopView.invalidate();
+                break;
+            case 2000:
+                LoopView.smoothScroll(loopView);
+                break;
+            case 3000:
+                loopView.itemSelected();
+                break;
+        }
+        super.handleMessage(paramMessage);
     }
 
 }
